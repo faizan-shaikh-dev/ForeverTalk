@@ -9,6 +9,7 @@ export const setUpSocket = (io) => {
     socket.on("join", (userId) => {
       onlineUsers.set(userId, socket.id);
 
+      io.emit("online-users", [...onlineUsers.keys()]);
       console.log("User Joined:", userId);
       console.log("Online User", [...onlineUsers]);
     });
@@ -20,8 +21,25 @@ export const setUpSocket = (io) => {
           break;
         }
       }
+      io.emit("online-users", [...onlineUsers.keys()]);
       console.log("User Disconnected:", socket.id);
       console.log("Online Users:", [...onlineUsers]);
+
+      socket.on("typing-start", ({ senderId, receiverId }) => {
+        const receiverSockedId = onlineUsers.get(receiverId);
+
+        if (receiverSockedId) {
+          io.to(receiverSockedId).emit("user-typing", senderId);
+        }
+      });
+
+      socket.on("typing-stop", ({ receiverId }) => {
+        const receiverSockedId = onlineUsers.get(receiverId);
+
+        if (receiverSockedId) {
+          io.to(receiverSockedId).emit("user-stop-typing");
+        }
+      });
     });
   });
 };

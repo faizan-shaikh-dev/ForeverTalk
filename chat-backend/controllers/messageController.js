@@ -7,6 +7,11 @@ export const sendMessage = async (req, res) => {
     const { receiverId } = req.params;
     const { text } = req.body;
 
+    if (!text?.trim()) {
+      return res.status(400).json({
+        message: "Message cannot be empty",
+      });
+    }
     const newMessage = await Message.create({
       senderId: req.user.userId,
       receiverId,
@@ -14,7 +19,7 @@ export const sendMessage = async (req, res) => {
       messageType: "text",
     });
 
-    const receiverSockedId = onlineUsers.get(receiverId);
+    const receiverSocketId = onlineUsers.get(receiverId);
 
     if (receiverSockedId) {
       getIO().to(receiverSockedId).emit("receive-message", newMessage);
@@ -78,5 +83,58 @@ export const markAsSeen = async (req, res) => {
     return res.status(500).json({
       message: "Internal Server Error",
     });
+  }
+};
+
+//uploadImage Logic
+export const uploadImage = async (req, res) => {
+  try {
+    return res
+      .status(200)
+      .json({ imageUrl: `http://localhost:5000/${req.file.path}` });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+//Upload Video Logic
+export const uploadVideo = async (req, res) => {
+  try {
+    return res.status(200).json({
+      videoUrl: `http://localhost:5000/${req.file.path}`,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+//imageMessage Controller
+export const sendImageMessage = async (req, res) => {
+  try {
+    const { receiverId } = req.params;
+
+    const imageUrl = `http://localhost:5000/${req.file.path}`;
+
+    const newImgMessage = await Message.create({
+      senderId: req.user.userId,
+      receiverId,
+      messageType: "image",
+      mediaUrl: imageUrl,
+    });
+
+    const receiverSockedId = onlineUsers.get(receiverId);
+    if (receiverSockedId) {
+      getIO().to(receiverSockedId).emit("recive-message", newImgMessage);
+    }
+
+    return res.status(200).json({
+      message: "Image sent",
+      data: newMessage,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };

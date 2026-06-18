@@ -8,11 +8,13 @@ import messageRoutes from "./routes/messageRoutes.js"
 import {createServer} from "http";
 import { Server } from "socket.io";
 import { setUpSocket } from "./socket/socket.js";
+import path from "path"
 const app = express();
 dotenv.config();
 
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
+app.use("/uploads", express.static("upload"));
 
 connectDB();
 
