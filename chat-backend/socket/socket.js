@@ -1,8 +1,8 @@
 const onlineUsers = new Map();
 
-let ioInstance
+let ioInstance;
 export const setUpSocket = (io) => {
-    ioInstance = io;
+  ioInstance = io;
   io.on("connection", (socket) => {
     console.log("User Connected:", socket.id);
 
@@ -14,18 +14,18 @@ export const setUpSocket = (io) => {
     });
 
     socket.on("disconnect", () => {
-        for(const [userId, socketId] of onlineUsers.entries()){
-            if (socketId === socket.id) {
-                onlineUsers.delete(userId);
-                break;
-            }
+      for (const [userId, socketId] of onlineUsers.entries()) {
+        if (socketId === socket.id) {
+          onlineUsers.delete(userId);
+          break;
         }
+      }
       console.log("User Disconnected:", socket.id);
       console.log("Online Users:", [...onlineUsers]);
     });
   });
 };
 
-export const getIO = ()=> ioInstance;
+export const getIO = () => ioInstance;
 
-export {onlineUsers};
+export { onlineUsers };
