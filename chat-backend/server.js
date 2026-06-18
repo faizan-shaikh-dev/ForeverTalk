@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js"
 const app = express();
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.get("/",(req, res)=>{
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/message", messageRoutes);
 
 const PORT = process.env.PORT;
 
