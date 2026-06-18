@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
+import { use } from "react";
 
 //Register User Logic
 export const registerUser = async (req, res) =>{
@@ -22,7 +23,9 @@ export const registerUser = async (req, res) =>{
             passwordHash = hashPassword
         });
 
-        return res.status(200).json({message:"User Register Successfully"});
+        return res.status(200).json({message:"User Register Successfully",
+            user
+        });
 
 
     } catch (error) {
@@ -63,7 +66,11 @@ export const loginUser = async (req, res) =>{
             },
         );
 
-        return res.status(200).json({message:"User Login Successfully"});
+        return res.status(200).json({message:"User Login Successfully",
+            token,
+            userId: user._id,
+            username: user.username
+        });
     } catch (error) {
           console.error(error);
           return res.status(500).json({message:"Internal Server Error"});
