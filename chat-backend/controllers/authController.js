@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
-import User from "../models/userModel.js";
+import User from "../models/userModel.js"
 import bcrypt from "bcryptjs";
-import { use } from "react";
 
 //Register User Logic
 export const registerUser = async (req, res) =>{
@@ -20,7 +19,7 @@ export const registerUser = async (req, res) =>{
 
         const user = await User.create({
             username,
-            passwordHash = hashPassword
+            passwordHash: hashPassword
         });
 
         return res.status(200).json({message:"User Register Successfully",
@@ -50,7 +49,7 @@ export const loginUser = async (req, res) =>{
             return res.status(404).json({message:"User not Found"});
         }
         
-        const isPasswordMatch = await bcrypt.compare(password, isUser.hashPassword);
+        const isPasswordMatch = await bcrypt.compare(password, isUser.passwordHash);
 
         if (!isPasswordMatch) {
             return res.status(401).json({message:"Invalid or Wrong Password"});
@@ -58,7 +57,7 @@ export const loginUser = async (req, res) =>{
 
         const token = jwt.sign(
             {
-                userId = user._id,
+                userId : isUser._id,
             },
             process.env.JWT_SECRET_KEY,
             {
@@ -68,8 +67,8 @@ export const loginUser = async (req, res) =>{
 
         return res.status(200).json({message:"User Login Successfully",
             token,
-            userId: user._id,
-            username: user.username
+            userId: isUser._id,
+            username: isUser.username
         });
     } catch (error) {
           console.error(error);
