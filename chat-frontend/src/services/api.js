@@ -1,13 +1,10 @@
 import axios from "axios";
 
 const getBaseUrl = () => {
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
+  if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+    return "http://localhost:5000";
   }
-  if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
-    return "https://forevertalk.onrender.com";
-  }
-  return "http://localhost:5000";
+  return import.meta.env.VITE_API_BASE_URL || "https://forevertalk.onrender.com";
 };
 
 const API = axios.create({
