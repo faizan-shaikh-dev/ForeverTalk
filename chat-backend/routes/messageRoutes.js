@@ -4,6 +4,7 @@ import {
   getMessages,
   markAsSeen,
   sendImageMessage,
+  sendVideoMessage,
   sendMessage,
   uploadImage,
   uploadVideo,
@@ -17,6 +18,7 @@ router.get("/getAll/:userId", protect, getMessages);
 router.patch("/seen/:messageId", protect, markAsSeen);
 router.post("/upload-image", protect, upload.single("image"), uploadImage);
 router.post("/upload-video", protect, upload.single("video"), uploadVideo);
-router.post("/send-image/:receiverId", protect, upload.single("image", sendImageMessage));
+router.post("/send-image/:receiverId", protect, upload.single("image"), sendImageMessage);
+router.post("/send-video/:receiverId", protect, upload.single("video"), sendVideoMessage);
 
 export default router;

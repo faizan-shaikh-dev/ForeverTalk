@@ -21,8 +21,8 @@ export const sendMessage = async (req, res) => {
 
     const receiverSocketId = onlineUsers.get(receiverId);
 
-    if (receiverSockedId) {
-      getIO().to(receiverSockedId).emit("receive-message", newMessage);
+    if (receiverSocketId) {
+      getIO().to(receiverSocketId).emit("receive-message", newMessage);
     }
 
     return res.status(200).json({ message: "message sent", newMessage });
@@ -33,7 +33,6 @@ export const sendMessage = async (req, res) => {
 };
 
 //Get Message Logic
-
 export const getMessages = async (req, res) => {
   try {
     const otherUserId = req.params.userId;
@@ -44,7 +43,6 @@ export const getMessages = async (req, res) => {
           senderId: req.user.userId,
           receiverId: otherUserId,
         },
-
         {
           senderId: otherUserId,
           receiverId: req.user.userId,
@@ -59,7 +57,6 @@ export const getMessages = async (req, res) => {
 };
 
 //marka Seen Logic
-
 export const markAsSeen = async (req, res) => {
   try {
     const { messageId } = req.params;
@@ -89,9 +86,10 @@ export const markAsSeen = async (req, res) => {
 //uploadImage Logic
 export const uploadImage = async (req, res) => {
   try {
+    const safePath = req.file.path.replace(/\\/g, "/");
     return res
       .status(200)
-      .json({ imageUrl: `http://localhost:5000/${req.file.path}` });
+      .json({ imageUrl: `http://localhost:5000/${safePath}` });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });
@@ -101,8 +99,9 @@ export const uploadImage = async (req, res) => {
 //Upload Video Logic
 export const uploadVideo = async (req, res) => {
   try {
+    const safePath = req.file.path.replace(/\\/g, "/");
     return res.status(200).json({
-      videoUrl: `http://localhost:5000/${req.file.path}`,
+      videoUrl: `http://localhost:5000/${safePath}`,
     });
   } catch (error) {
     console.error(error);
@@ -115,7 +114,8 @@ export const sendImageMessage = async (req, res) => {
   try {
     const { receiverId } = req.params;
 
-    const imageUrl = `http://localhost:5000/${req.file.path}`;
+    const safePath = req.file.path.replace(/\\/g, "/");
+    const imageUrl = `http://localhost:5000/${safePath}`;
 
     const newImgMessage = await Message.create({
       senderId: req.user.userId,
@@ -124,14 +124,44 @@ export const sendImageMessage = async (req, res) => {
       mediaUrl: imageUrl,
     });
 
-    const receiverSockedId = onlineUsers.get(receiverId);
-    if (receiverSockedId) {
-      getIO().to(receiverSockedId).emit("recive-message", newImgMessage);
+    const receiverSocketId = onlineUsers.get(receiverId);
+    if (receiverSocketId) {
+      getIO().to(receiverSocketId).emit("receive-message", newImgMessage);
     }
 
     return res.status(200).json({
       message: "Image sent",
-      data: newMessage,
+      data: newImgMessage,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+//videoMessage Controller
+export const sendVideoMessage = async (req, res) => {
+  try {
+    const { receiverId } = req.params;
+
+    const safePath = req.file.path.replace(/\\/g, "/");
+    const videoUrl = `http://localhost:5000/${safePath}`;
+
+    const newVidMessage = await Message.create({
+      senderId: req.user.userId,
+      receiverId,
+      messageType: "video",
+      mediaUrl: videoUrl,
+    });
+
+    const receiverSocketId = onlineUsers.get(receiverId);
+    if (receiverSocketId) {
+      getIO().to(receiverSocketId).emit("receive-message", newVidMessage);
+    }
+
+    return res.status(200).json({
+      message: "Video sent",
+      data: newVidMessage,
     });
   } catch (error) {
     console.error(error);

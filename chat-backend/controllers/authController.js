@@ -76,3 +76,15 @@ export const loginUser = async (req, res) =>{
                  
     }
 };
+
+// Get all users except the logged-in user
+export const getUsers = async (req, res) => {
+  try {
+    const currentUserId = req.user.userId;
+    const users = await User.find({ _id: { $ne: currentUserId } }).select("-passwordHash");
+    return res.status(200).json({ users });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};

@@ -24,22 +24,22 @@ export const setUpSocket = (io) => {
       io.emit("online-users", [...onlineUsers.keys()]);
       console.log("User Disconnected:", socket.id);
       console.log("Online Users:", [...onlineUsers]);
+    });
 
-      socket.on("typing-start", ({ senderId, receiverId }) => {
-        const receiverSockedId = onlineUsers.get(receiverId);
+    socket.on("typing-start", ({ senderId, receiverId }) => {
+      const receiverSocketId = onlineUsers.get(receiverId);
 
-        if (receiverSockedId) {
-          io.to(receiverSockedId).emit("user-typing", senderId);
-        }
-      });
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("user-typing", senderId);
+      }
+    });
 
-      socket.on("typing-stop", ({ receiverId }) => {
-        const receiverSockedId = onlineUsers.get(receiverId);
+    socket.on("typing-stop", ({ senderId, receiverId }) => {
+      const receiverSocketId = onlineUsers.get(receiverId);
 
-        if (receiverSockedId) {
-          io.to(receiverSockedId).emit("user-stop-typing");
-        }
-      });
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("user-stop-typing", senderId);
+      }
     });
   });
 };

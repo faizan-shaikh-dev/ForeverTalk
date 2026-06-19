@@ -1,8 +1,28 @@
-import React from "react";
-import { MessageCircleMore } from "lucide-react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { MessageCircleMore, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!username.trim() || !password.trim()) {
+      return;
+    }
+    setSubmitting(true);
+    const result = await login(username, password);
+    setSubmitting(false);
+    if (result.success) {
+      navigate("/");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
@@ -18,15 +38,17 @@ const Login = () => {
         </div>
 
         {/* Form */}
-
-        <form className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-slate-300 mb-2">Email</label>
+            <label className="block text-slate-300 mb-2">Username</label>
 
             <input
-              type="email"
-              placeholder="Enter your email"
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500"
+              type="text"
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username"
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500 transition-colors"
             />
           </div>
 
@@ -35,16 +57,27 @@ const Login = () => {
 
             <input
               type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500"
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500 transition-colors"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 transition-all duration-300 text-white py-3 rounded-xl font-semibold cursor-pointer"
+            disabled={submitting}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 transition-all duration-300 text-white py-3 rounded-xl font-semibold cursor-pointer flex items-center justify-center gap-2"
           >
-            Login
+            {submitting ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
 
