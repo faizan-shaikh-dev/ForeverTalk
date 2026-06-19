@@ -121,7 +121,12 @@ export const ChatProvider = ({ children }) => {
       fetchUsers();
 
       // Initialize Socket connection
-      const socket = io(import.meta.env.VITE_API_BASE_URL || "http://localhost:5000", {
+      const socketUrl = import.meta.env.VITE_API_BASE_URL || 
+        (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
+          ? "https://forevertalk.onrender.com"
+          : "http://localhost:5000");
+
+      const socket = io(socketUrl, {
         transports: ["websocket"],
       });
       socketRef.current = socket;
